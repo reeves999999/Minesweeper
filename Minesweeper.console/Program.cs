@@ -11,7 +11,7 @@ namespace Minesweeper.console
             var services = ConfigureServices();
             var serviceProvider = services.BuildServiceProvider();
 
-            serviceProvider.GetService<GameCreator>().Run();
+            serviceProvider.GetService<GameplayManager>().Init();
         }
 
         private static IServiceCollection ConfigureServices()
@@ -20,8 +20,7 @@ namespace Minesweeper.console
 
             var config = LoadConfiguration();
             services.AddSingleton(config);
-            services.AddTransient<GameCreator>();
-            services.AddTransient<IGameplayManager, GameplayManager>();
+            services.AddTransient<GameplayManager>();
 
             var gameOptions = new GameOptions();
             config.GetSection(nameof(GameOptions)).Bind(gameOptions);

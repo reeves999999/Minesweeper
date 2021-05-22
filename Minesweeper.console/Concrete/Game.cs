@@ -1,4 +1,6 @@
-﻿namespace Minesweeper.console
+﻿using System;
+
+namespace Minesweeper.console
 {
     public class Game
     {
@@ -6,11 +8,12 @@
 
         public int Lives { get; set; }
 
-        public int BombCount { get; set; }
+        public int BombsHit { get; set; }
+
+        public bool GameEnded { get; set; }
 
         public int CurrentXPosition { get; set; }
+        
         public int CurrentYPosition { get; set; }
-
-        public string Message { get; set; }
     }
 }

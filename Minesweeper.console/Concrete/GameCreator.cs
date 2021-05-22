@@ -21,7 +21,6 @@ namespace Minesweeper.console
             EnforceGameRules();
             GenerateGrid(_gameOptions.GridSize);
             SetBombs(_gameOptions.BombCount);
-            //DrawGrid();
 
             //show instructions
             //logger
@@ -39,7 +38,7 @@ namespace Minesweeper.console
             //readme.md
             //github deploy
 
-            _gameplayManager.Init(Game);
+            _gameplayManager.Init();
         }
 
         private void EnforceGameRules()
@@ -53,7 +52,6 @@ namespace Minesweeper.console
 
         private void GenerateGrid(int size)
         {
-            int[][] array = new int[size][];
             int[][] grid = new int[size][];
 
             for (int i = 0; i < size; i++)
@@ -64,31 +62,16 @@ namespace Minesweeper.console
             Game.Board = grid;
         }
 
-        private void DrawGrid()
-        {
-            foreach (var item in Game.Board)
-            {
-                Console.WriteLine("---");
-                foreach (var inner in item)
-                {
-                    Console.WriteLine(inner);
-                }
-            }
-        }
-
         private void SetBombs(int count)
         {
             for (int i = 0; i < count; i++)
             {
                 Random randomGenerator = new Random();
-                int targetRow = randomGenerator.Next(0, _gameOptions.GridSize);
                 int targetColumn = randomGenerator.Next(0, _gameOptions.GridSize);
+                int targetRow = randomGenerator.Next(0, _gameOptions.GridSize);
 
-                var gridRow = Game.Board[targetRow];
-                gridRow[targetColumn] = -1;
-
-                Console.WriteLine($"Bomb placed at position {GameHelper.CurrentXPositionLetter(targetRow+1)}{targetColumn}");
-
+                var gridColumn = Game.Board[targetColumn];
+                gridColumn[targetRow] = -1;
             }
         }
 

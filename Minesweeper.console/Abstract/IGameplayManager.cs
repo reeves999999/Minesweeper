@@ -2,6 +2,6 @@
 {
     public interface  IGameplayManager
     {
-        void Init(Game game);
+        void Init();
     }
 }
