@@ -3,6 +3,10 @@ using System.Linq;
 
 namespace Minesweeper.console
 {
+    //logger
+    //testing
+    //readme.md
+
     public class GameplayManager : IGameplayManager
     {
         private readonly GameOptions _gameOptions;
@@ -49,15 +53,15 @@ namespace Minesweeper.console
             {
                 keyInfo = Console.ReadKey();
 
-                if(keyInfo.Key == ConsoleKey.R)
+                if (keyInfo.Key == ConsoleKey.R)
                 {
                     Init();
                 }
                 else
                 {
-HandleArrowMoves(keyInfo);
+                    HandleArrowMoves(keyInfo);
                 }
-                
+
             }
             while (keyInfo.Key != ConsoleKey.Escape && !Game.GameEnded);
         }
@@ -159,7 +163,6 @@ HandleArrowMoves(keyInfo);
 
         private void EnforceGameRules()
         {
-            //bomb count must be lower than grid size else start point will exceed first column
             if (_gameOptions.BombCount > _gameOptions.GridSize)
             {
                 _gameOptions.BombCount = _gameOptions.GridSize - 1;
