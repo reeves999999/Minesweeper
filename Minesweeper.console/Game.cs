@@ -4,6 +4,11 @@ namespace Minesweeper.console
 {
     public class Game
     {
+        public Game(int lives)
+        {
+            Lives = lives;
+        }
+
         public int[][] Board { get; set; }
 
         public int Lives { get; set; }

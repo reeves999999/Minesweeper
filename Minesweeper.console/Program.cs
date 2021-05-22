@@ -10,7 +10,6 @@ namespace Minesweeper.console
         {
             var services = ConfigureServices();
             var serviceProvider = services.BuildServiceProvider();
-
             serviceProvider.GetService<GameplayManager>().Init();
         }
 
@@ -20,6 +19,7 @@ namespace Minesweeper.console
 
             var config = LoadConfiguration();
             services.AddSingleton(config);
+
             services.AddTransient<GameplayManager>();
 
             var gameOptions = new GameOptions();

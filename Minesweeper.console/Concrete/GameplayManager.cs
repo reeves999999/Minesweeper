@@ -3,10 +3,6 @@ using System.Linq;
 
 namespace Minesweeper.console
 {
-    //logger
-    //testing
-    //readme.md
-
     public class GameplayManager : IGameplayManager
     {
         private readonly GameOptions _gameOptions;
@@ -16,13 +12,12 @@ namespace Minesweeper.console
             _gameOptions = gameOptions;
         }
 
-        Game Game { get; set; }
+        private Game Game { get; set; }
 
         public void Init()
         {
             Console.Clear();
-            Game = new Game();
-            Game.Lives = _gameOptions.Lives;
+            Game = new Game(_gameOptions.Lives);
             EnforceGameRules();
             GenerateGrid(_gameOptions.GridSize);
             SetBombs(_gameOptions.BombCount);
@@ -31,7 +26,7 @@ namespace Minesweeper.console
             var firstColumn = Game.Board[0];
             for (int i = 0; i < firstColumn.Length; i++)
             {
-                if (firstColumn[i] > -1) //no bomb
+                if (firstColumn[i] > -1) //no bomb, place user here
                 {
                     Game.CurrentXPosition = 0;
                     Game.CurrentYPosition = i;
@@ -39,7 +34,7 @@ namespace Minesweeper.console
                 }
             }
 
-            PrintMessage($"Game started. Use arrow keys to navigate. Please escape key to exit.", ConsoleColor.Magenta);
+            PrintMessage($"Game started. Use arrow keys to navigate. Please escape key to exit, or 'R' to restart.", ConsoleColor.Magenta);
             PrintMessage($"Current position is: {GameHelper.CurrentXPositionLetter(Game.CurrentXPosition)}{Game.CurrentYPosition + 1}");
 
             ListenForMoves();
@@ -108,39 +103,35 @@ namespace Minesweeper.console
         private void BombCheck()
         {
             var column = Game.Board[Game.CurrentXPosition];
-            for (int i = 0; i < column.Length; i++)
-            {
-                if (column[i] == -1) //bomb!
+                if (column[Game.CurrentYPosition] == -1) //bomb!
                 {
                     Game.BombsHit++;
                     //clear bomb
-                    column[i] = i;
+                    column[Game.CurrentYPosition] = Game.CurrentYPosition;
 
-                    //reduce lives
                     Game.Lives--;
                     PrintMessage($"\nBOMB EXPLODED at position {GameHelper.CurrentXPositionLetter(Game.CurrentXPosition)}{Game.CurrentYPosition + 1}\t{Game.Lives} lives remaining.\n", ConsoleColor.Red);
-
-                    if (Game.Lives == 0)
-                    {
-                        Game.GameEnded = true;
-                        PrintMessage($"\n\nGAME OVER - You lost all your lives.\n", ConsoleColor.Red);
-                        PrintMessage("Hit escape key to exit.");
-                    }
-                    break;
                 }
-            }
         }
 
         private void GameStateCheck()
         {
             BombCheck();
 
+
+            if (Game.Lives == 0)
+            {
+                Game.GameEnded = true;
+                PrintMessage($"\n\nGAME OVER - You lost all your lives.\n", ConsoleColor.Red);
+                Console.ReadLine();
+            }
+
             if (Game.CurrentXPosition == _gameOptions.GridSize - 1)
             {
                 Game.GameEnded = true;
                 string livesText = Game.Lives > 1 ? "lives" : "life";
                 PrintMessage($"\n\nYou made it! With {Game.Lives} {livesText} remaining.\n", ConsoleColor.Green);
-                PrintMessage("Hit escape key to exit.");
+                Console.ReadLine();
             }
 
             if (!Game.GameEnded)
@@ -149,6 +140,7 @@ namespace Minesweeper.console
                 PrintMessage($"Lives remaining: { Game.Lives}");
                 PrintMessage($"Bombs hit/remaining: {Game.BombsHit }/{_gameOptions.BombCount - Game.BombsHit}");
             }
+
         }
 
         private void PrintMessage(string message, ConsoleColor colour = ConsoleColor.White)
@@ -160,10 +152,9 @@ namespace Minesweeper.console
             }
         }
 
-
         private void EnforceGameRules()
         {
-            if (_gameOptions.BombCount > _gameOptions.GridSize)
+            if (_gameOptions.BombCount >= _gameOptions.GridSize)
             {
                 _gameOptions.BombCount = _gameOptions.GridSize - 1;
             }
@@ -188,7 +179,6 @@ namespace Minesweeper.console
                 Random randomGenerator = new Random();
                 int targetColumn = randomGenerator.Next(0, _gameOptions.GridSize);
                 int targetRow = randomGenerator.Next(0, _gameOptions.GridSize);
-
                 var gridColumn = Game.Board[targetColumn];
                 gridColumn[targetRow] = -1;
             }
