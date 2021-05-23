@@ -5,6 +5,8 @@
         public Game(GameOptions options)
         {
             Lives = options.Lives;
+            BombCount = options.BombCount;
+            GridSize = options.GridSize;
         }
 
         public int[][] Board { get; set; }
@@ -13,12 +15,18 @@
 
         public int Score { get; set; }
 
+        public int GridSize { get; set; }
+
+        public int BombCount { get; set; }
+
         public int BombsHit { get; set; }
 
         public bool GameEnded { get; set; }
 
         public int XPosition { get; set; }
         
-        public int YPosition { get; set; }        
+        public int YPosition { get; set; }      
+        
+        public string Message { get; set; }
     }
 }

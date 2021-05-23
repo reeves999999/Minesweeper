@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.IO;
 
 namespace Minesweeper.console
@@ -10,7 +11,9 @@ namespace Minesweeper.console
         {
             var services = ConfigureServices();
             var serviceProvider = services.BuildServiceProvider();
-            serviceProvider.GetService<GameplayManager>().Init();
+            var gameplayManager = serviceProvider.GetService<GameplayManager>();
+            gameplayManager.Init();
+            gameplayManager.Start();
         }
 
         private static IServiceCollection ConfigureServices()
@@ -22,6 +25,7 @@ namespace Minesweeper.console
 
             services.AddTransient<GameplayManager>();
 
+            services.AddTransient<IMessageProcessor, ConsoleMessageProcessor>();
             var gameOptions = new GameOptions();
             config.GetSection(nameof(GameOptions)).Bind(gameOptions);
             services.AddSingleton(gameOptions);
