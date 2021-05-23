@@ -12,12 +12,12 @@ namespace Minesweeper.console
             _gameOptions = gameOptions;
         }
 
-        private Game Game { get; set; }
+        public Game Game { get; set; }
 
         public void Init()
         {
             Console.Clear();
-            Game = new Game(_gameOptions.Lives);
+            Game = new Game(_gameOptions);
 
             EnforceGameRules();
             GenerateGrid(_gameOptions.GridSize);

@@ -2,9 +2,9 @@
 {
     public class Game
     {
-        public Game(int lives)
+        public Game(GameOptions options)
         {
-            Lives = lives;
+            Lives = options.Lives;
         }
 
         public int[][] Board { get; set; }

@@ -1,7 +1,8 @@
 ﻿namespace Minesweeper.console
 {
-    public interface  IGameplayManager
+    public interface IGameplayManager
     {
         void Init();
+        Game Game { get; set; }
     }
 }
