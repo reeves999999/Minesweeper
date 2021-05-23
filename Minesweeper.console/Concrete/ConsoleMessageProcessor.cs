@@ -2,6 +2,7 @@
 
 namespace Minesweeper.console
 {
+    //Allow writing of messages to the console window. Coulured text is supported.
     public class ConsoleMessageProcessor : IMessageProcessor
     {
         public void PrintMessage(string message, ConsoleColor colour)
@@ -12,6 +13,7 @@ namespace Minesweeper.console
             }
         }
 
+        //logical pause point that probably should not be here!
         public void Pause()
         {
             Console.ReadLine();

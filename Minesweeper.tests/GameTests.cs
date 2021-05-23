@@ -1,18 +1,12 @@
-using Microsoft.Extensions.Configuration;
 using Minesweeper.console;
 using Moq;
-using System;
-using System.IO;
 using System.Linq;
 using Xunit;
 
 namespace Minesweeper.tests
 {
-    //game starts
-    //moves from central position fire ok
-    //lives are less than bombs
-    //game ends
-    //bomb count is less than grid size (8)(Chess board mentioned in spec.)
+    //Mixture of basic tests to cover key points
+    //Not an extensive suite by any means
 
     public class GameTests : IClassFixture<GameFixture>
     {
@@ -46,7 +40,6 @@ namespace Minesweeper.tests
 
             Assert.True(SUT.Game.BombCount > SUT.Game.Lives);
         }
-
 
         [Fact]
         public void When_Player_Is_Positioned_Centrally_Moving_In_Any_Direction_Works()
@@ -110,14 +103,13 @@ namespace Minesweeper.tests
             var mock = new Mock<GameplayManager>(options, new BlankMessageProcessor());
             var sut = mock.Object;
             sut.Init();
+
             sut.Game.XPosition = 7;
             sut.Game.YPosition = 7;
 
             sut.Move(GameMovesEnum.Right);
             mock.Verify(x => x.SetGameSuccess(), Times.Once());
         }
-
-
 
         [Fact]
         public void When_Player_Has_Hit_All_Bombs_Game_Ends()
@@ -147,5 +139,4 @@ namespace Minesweeper.tests
         }
     }
 
-    
 }

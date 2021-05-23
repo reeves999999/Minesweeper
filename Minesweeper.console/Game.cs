@@ -9,6 +9,8 @@
             GridSize = options.GridSize;
         }
 
+        //All fields named as per function
+
         public int[][] Board { get; set; }
 
         public int Lives { get; set; }

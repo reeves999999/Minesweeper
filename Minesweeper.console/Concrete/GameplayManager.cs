@@ -3,8 +3,11 @@ using System.Linq;
 
 namespace Minesweeper.console
 {
+    //This class controls the game 
     public class GameplayManager : IGameplayManager
     {
+        //Inject GameOptions (from singleton)
+        //Inject message processor
         private readonly GameOptions _gameOptions;
         private readonly IMessageProcessor _messageProcessor;
 
@@ -14,8 +17,10 @@ namespace Minesweeper.console
             _messageProcessor = messageProcessor;
         }
 
+        //Logical Game unit
         public Game Game { get; set; }
 
+        //Set up the game
         public void Init()
         {
             Game = new Game(_gameOptions);
@@ -25,6 +30,9 @@ namespace Minesweeper.console
             SetStartPosition();
         }
 
+        //Find a start position in the first column that does not contain a bomb. There is no fun starting life sat on a bomb, after all.
+        //The maximum allowed bomb count must be at least one less than the size of a board axis (Typically 8)
+        //Otherwise, additional check would have been required in more columns than just the first.
         private void SetStartPosition()
         {
             //set start point where no bomb exists
@@ -38,13 +46,17 @@ namespace Minesweeper.console
                     break;
                 }
             }
+
+            //Set messaging
             _messageProcessor.PrintMessage($"Game started. Use arrow keys to navigate. Please escape key to exit, or 'R' to restart.", ConsoleColor.Magenta);
             _messageProcessor.PrintMessage($"(Bomb free) start position is: {GameHelper.CurrentXPositionLetter(Game.XPosition)}{Game.YPosition + 1}",ConsoleColor.White);
         }
 
         public void Start()
         {
-
+            //Capture UI key events from the console
+            //This will be ignored in tests, hence the corresponding "Move" method
+            //Escape (Quit) and R (Restart) keys added
             ConsoleKeyInfo keyInfo;
             do
             {
@@ -56,39 +68,30 @@ namespace Minesweeper.console
                 }
                 else
                 {
-                    HandleConsoleInput(keyInfo);
+                    switch (keyInfo.Key)
+                    {
+                        case ConsoleKey.UpArrow:
+                            Move(GameMovesEnum.Up);
+                            break;
+
+                        case ConsoleKey.DownArrow:
+                            Move(GameMovesEnum.Down);
+                            break;
+
+                        case ConsoleKey.LeftArrow:
+                            Move(GameMovesEnum.Left);
+                            break;
+
+                        case ConsoleKey.RightArrow:
+                            Move(GameMovesEnum.Right);
+                            break;
+                    }
                 }
 
             }
             while (keyInfo.Key != ConsoleKey.Escape && !Game.GameEnded);
         }
-
-        /// <summary>
-        /// This needs to just capture UI events and delegate as not easily testable otherwise
-        /// </summary>
-        /// <param name="keyInfo"></param>
-        private void HandleConsoleInput(ConsoleKeyInfo keyInfo)
-        {
-            //validate moves
-            switch (keyInfo.Key)
-            {
-                case ConsoleKey.UpArrow:
-                    Move(GameMovesEnum.Up);
-                    break;
-
-                case ConsoleKey.DownArrow:
-                    Move(GameMovesEnum.Down);
-                    break;
-
-                case ConsoleKey.LeftArrow:
-                    Move(GameMovesEnum.Left);
-                    break;
-
-                case ConsoleKey.RightArrow:
-                    Move(GameMovesEnum.Right);
-                    break;
-            }
-        }
+            
 
         public void Move(GameMovesEnum direction)
         {
@@ -129,8 +132,41 @@ namespace Minesweeper.console
             GameStateCheck();
         }
 
+            
+        public void GameStateCheck()
+        {
+            //check possible game outcomes
+
+            //check bomb
+            BombCheck();
+
+            if (Game.Lives == 0)
+            {
+                SetGameOver();
+                _messageProcessor.Pause();
+                //it's over I'm afraid
+            }
+
+            if (Game.XPosition == _gameOptions.GridSize - 1)
+            {
+                SetGameSuccess();
+                _messageProcessor.Pause();
+                //legend
+            }
+
+            if (!Game.GameEnded)
+            {
+                _messageProcessor.PrintMessage($"Position: {GameHelper.CurrentXPositionLetter(Game.XPosition)}{Game.YPosition + 1}\tLives:{Game.Lives}\tBombs hit/remaining: {Game.BombsHit }/{_gameOptions.BombCount - Game.BombsHit}\tScore: {Game.Score}", ConsoleColor.White);
+                //set message
+                //play on
+            }
+        }
+
         private void BombCheck()
         {
+            //Check to see if player has landed on a bomb
+            //Decrease lives if so
+            //Set bomb back to normal cell value as only one thing is worse than sitting on a bomb - sitting on the same bomb twice. The world can do without such problems.
             var column = Game.Board[Game.XPosition];
             if (column[Game.YPosition] == -1) //bomb!
             {
@@ -138,52 +174,43 @@ namespace Minesweeper.console
                 //clear bomb
                 column[Game.YPosition] = Game.YPosition;
 
+                //reduce lives
                 Game.Lives--;
+
+                //set message
+                //no point scored for such a reckless move
                 _messageProcessor.PrintMessage($"\nBOMB EXPLODED at position {GameHelper.CurrentXPositionLetter(Game.XPosition)}{Game.YPosition + 1}\t{Game.Lives} lives remaining.\n", ConsoleColor.Red);
             }
             else
             {
+                //bomb avoided - increase score
                 Game.Score++;
             }
         }
 
-        public void GameStateCheck()
-        {
-            BombCheck();
-
-            if (Game.Lives == 0)
-            {
-                SetGameOver();
-                _messageProcessor.Pause();
-            }
-
-            if (Game.XPosition == _gameOptions.GridSize - 1)
-            {
-                SetGameSuccess();
-                _messageProcessor.Pause();
-            }
-
-            if (!Game.GameEnded)
-            {
-                _messageProcessor.PrintMessage($"Position: {GameHelper.CurrentXPositionLetter(Game.XPosition)}{Game.YPosition + 1}\tLives:{Game.Lives}\tBombs hit/remaining: {Game.BombsHit }/{_gameOptions.BombCount - Game.BombsHit}\tScore: {Game.Score}", ConsoleColor.White);
-            }
-
-        }
-
         public void SetGameOver()
         {
+            //As name
             Game.GameEnded = true;
             _messageProcessor.PrintMessage($"\n\nGAME OVER - You lost all your lives.\n", ConsoleColor.Red);
         }
 
         public virtual void SetGameSuccess()
         {
+            //As name
             Game.GameEnded = true;
             _messageProcessor.PrintMessage($"\n\nYou made it! With {Game.Lives} {GameHelper.LivesText(Game.Lives)} remaining.\tScore: {Game.Score}\n", ConsoleColor.Green);
         }
 
         private void EnforceGameRules()
         {
+            //Purely restricted for use of letters A-Z
+            //Wooden restriction
+            if(Game.GridSize > 26)
+            {
+                Game.GridSize = 26;
+            }
+
             //less bombs are needed than grid size so user has a valid start position in column A
             if (Game.BombCount >= Game.GridSize)
             {
@@ -199,7 +226,8 @@ namespace Minesweeper.console
 
         private void GenerateGrid()
         {
-            //typically, 8 x 8 grid (of int)
+            //Typically, 8 x 8 grid (of ints)
+            //There are more ways to do this than there are types of hot dinner. Variety used.
             int[][] grid = new int[Game.GridSize][];
 
             for (int i = 0; i < Game.GridSize; i++)
@@ -207,11 +235,14 @@ namespace Minesweeper.console
                 grid[i] = Enumerable.Range(0, Game.GridSize).ToArray();
             }
 
+            //Set the game board
             Game.Board = grid;
         }
 
         private void SetBombs(int count)
         {
+            //Place these nasty critters at random locations (before the user get to move)
+            //Use -1 value for bombs
             for (int i = 0; i < count; i++)
             {
                 Random randomGenerator = new Random();

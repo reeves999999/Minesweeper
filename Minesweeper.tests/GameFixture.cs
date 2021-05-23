@@ -4,6 +4,7 @@ using System.IO;
 
 namespace Minesweeper.tests
 {
+    //Just for setup/teardown purposes
     public class GameFixture
     {
         IConfiguration _config;
