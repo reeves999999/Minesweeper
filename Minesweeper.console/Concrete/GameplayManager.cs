@@ -95,6 +95,7 @@ namespace Minesweeper.console
 
         public void Move(GameMovesEnum direction)
         {
+            //Ensure the attempted move lies within the boundary of the game grid.
             switch (direction)
             {
                 case GameMovesEnum.Up:
