@@ -25,8 +25,6 @@
 
         public int XPosition { get; set; }
         
-        public int YPosition { get; set; }      
-        
-        public string Message { get; set; }
+        public int YPosition { get; set; }   
     }
 }
