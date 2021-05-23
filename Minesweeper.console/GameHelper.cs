@@ -10,5 +10,9 @@
         {
             return GameLetters[xPosition];
         }
+        public static string LivesText(int lives)
+        {
+            return lives > 1 ? "lives" : "life";
+        }
     }
 }
